@@ -17,7 +17,7 @@ const signUp = async (req, res) => {
       name,
       email,
       password: hashed,
-      role: email === "admin@gmail.com" ? "admin" : "user",
+      role: email === "adminhu@gmail.com" ? "admin" : "user",
     });
     await newUsers.save();
 

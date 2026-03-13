@@ -1,17 +1,52 @@
 const router = require("express").Router();
 
 const adminModel = require("../Models/admin");
-
-router.post("/create", async (req, res) => {
+const adminAuth = require("../middleware/adminAuth");
+router.post("/create", adminAuth, async (req, res) => {
   const newJob = new adminModel(req.body);
   await newJob.save();
   res.status(201).send({ success: true });
 });
 
+router.get("/locations", async (req, res) => {
+  try {
+    const famousCities = ["delhi", "noida", "gurgaon", "hyderabad", "mumbai"];
+
+    const jobs = await adminModel.find();
+
+    const countMap = {
+      Delhi: 0,
+      Noida: 0,
+      Gurgaon: 0,
+      Hyderabad: 0,
+      Mumbai: 0,
+    };
+
+    jobs.forEach((job) => {
+      const loc = job.location.toLowerCase();
+
+      if (loc === "delhi") countMap.Delhi++;
+      if (loc === "noida") countMap.Noida++;
+      if (loc === "gurgaon") countMap.Gurgaon++;
+      if (loc === "hyderabad") countMap.Hyderabad++;
+      if (loc === "mumbai") countMap.Mumbai++;
+    });
+
+    const result = Object.keys(countMap).map((city) => ({
+      location: city,
+      count: countMap[city],
+    }));
+
+    res.send(result);
+  } catch (err) {
+    res.status(500).send("Error fetching locations");
+  }
+});
+
 router.get("/all", async (req, res) => {
   const { exp, sort, location, type, search, salary } = req.query;
-  console.log(salary);
-  console.log(type);
+  // console.log(salary);
+  // console.log(type);
 
   let filter = {};
   if (salary) {
